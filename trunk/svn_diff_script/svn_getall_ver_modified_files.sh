@@ -1,64 +1,66 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ $# != 1 ]; then
-  echo "must point out the lowest svn ver"
-  exit 1
+ver_index=0
+
+for ver in $(svn log -q |grep '^r'|awk '{print $1}'|cut -c 2-);
+do
+  all_svn_ver[$ver_index]=$ver
+  ((ver_index++))
+done
+
+total_ver_number=$ver_index
+last_index=$(expr $total_ver_number - 1)
+
+if [ $# -lt 1 ]; then
+  echo "You have not point out the lowest svn ver!!"
+  echo "System will extract all svn versions!"
+  echo 'pls input "y" to comfirm. "n" to cancel:'
+  read y
+  if [ "x$y" != "xy" ]; then
+    exit 1
+  fi
+  lowest_ver=${all_svn_ver[$last_index]}
+  echo "System is extracting all svn versions!"
 fi
 
-cur_dir=$(pwd)
-cur_sub_dir=$(echo ${cur_dir##*/})
+if [ $# -lt 3 ]; then
+  lowest_ver=${all_svn_ver[$last_index]}
+  if [ $# -lt 2 ]; then 
+    cur_dir=$(pwd)
+    cur_sub_dir=$(echo ${cur_dir##*/})
+    cut_dir_str="$cur_sub_dir"
+  else
+    cut_dir_str="$2"
+  fi
+else 
+  cut_dir_str="$2"
+  lowest_ver=$3
+fi
 
-vers=`svn log |grep ^r |awk '{print $1}'|tr -d 'r'|sort -r`
+echo "lowest_ver:" $lowest_ver
+echo "cut_dir_str:" $cut_dir_str
+echo "all_svn_ver:" $all_svn_ver
+echo "total_ver_number:" $total_ver_number
 
-for v in $vers
-do 
-  echo $v
-  if [ $v -ge $1 ]; then
-    echo $v
-    svn_get_ver_modified_files.sh $v $cur_sub_dir
+ver_index=0
+echo ${all_svn_ver[$ver_index]} 
+while [ $ver_index -lt $total_ver_number ]; 
+do
+  if [ ${all_svn_ver[$ver_index]} -ge $lowest_ver ];then
+    if [ ${all_svn_ver[$ver_index]} = $lowest_ver ]; then
+      echo ${all_svn_ver[$ver_index]} $cut_dir_str $lowest_ver
+      svn_get_ver_modified_files.sh ${all_svn_ver[$ver_index]} $cut_dir_str $lowest
+    else
+      echo ${all_svn_ver[$ver_index]} $cut_dir_str ${all_svn_ver[$ver_index+1]}
+      svn_get_ver_modified_files.sh ${all_svn_ver[$ver_index]} $cut_dir_str ${all_svn_ver[$ver_index+1]}
+    fi
+    
+    if [ $? != 0 ]; then 
+      echo "get single ver files error at:"  ${all_svn_ver[$ver_index]}
+      echo "system exiting.....!!"
+      exit 1
+    fi
+    ((ver_index++))
   fi
 done
 
-svn up
-
-#rm ~/tmp/svn -rf
-#mkdir -p ~/tmp/svn
-
-#  modified_files=$(svn log -$v -q -v |grep -E "^\s*M|^\s*A"|awk '{print $2}') 
-#
-#  echo "$modified_files" > /tmp/files.txt
-#  while read line
-#  do
-#    echo $line
-#  done < /tmp/files.txt
-
-#  modified_files=$(cat /tmp/files.txt)
-#  echo ${#modified_files[@]}
-#  local i
-#  for ((i = 0; i < ${#modified_files[@]}; i++))
-#  do
-#    echo ${modified_files[$i]}
-#    echo "change"
-#    modified_files[$i]=${modified_files[$i]#$1}
-#    echo "changed"
-#    echo ${modified_files[$i]}
-#  done
-
-#  modified_files=$(svn log -$v -q -v)
-#  echo $modified_files
-#  echo $modified_files
-
-#  for f in $modified_files
-#  for ((i = 0; i < ${#a[@]}; i++))
-
-#SVN_VER=$(svn up|awk '{field=$NF};END{print field}'|tr -d '。')
-#echo $SVN_VER
-#if [ "$SVN_VER" ];
-#then
-#  /bin/rm  ~/tmp/svn/$SVN_VER -rf
-#  mkdir -p ~/tmp/svn/r$SVN_VER
-#  cp * ~/tmp/svn/r$SVN_VER -rf
-#fi
-#
-#cd ~/tmp/svn 
-#find -name .svn -exec /bin/rm -rf {} \; 1>/dev/null 2>&1
