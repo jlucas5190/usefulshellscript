@@ -5,21 +5,28 @@ if [ $# -lt 2 ]; then
   exit 1
 fi
 
-if [ -d r$1 ];then
+if [ $# = 3 ]; then
+ori_ver=$3
+else
+ori_ver=$(expr $1 - 1)
+fi  
+SAVE_DIR="../diff_vers/"$2"/r$1_$ori_ver"
+
+if [ -d $SAVE_DIR ];then
   exit 1
 fi
 
 #[ -d r$1 ] && /bin/rm r$1 -rf
-mkdir -p r$1
+mkdir -p $SAVE_DIR
 
-#svn up -r$1
+svn log -r$1 > $SAVE_DIR/svn_log_r$1.txt
 
 if [ $# = 3 ]; then
-  for file in $(svn log -r$1:$3 -q -v | sed -n "/^\s*M\|^\s*A\|^\s*U/s#.*$2/##p");
+  for file in $(svn log -r$3:$1 -q -v | sed -n "/^\s*M\|^\s*A\|^\s*U/s#.*$2/##p");
   do
     echo $file
     dir=$(dirname $file)
-    whole_dir=r$1/$dir
+    whole_dir=$SAVE_DIR/$dir
     mkdir -p $whole_dir
     if [ ! -d $file ]; then
       #cp $file $whole_dir 
@@ -27,7 +34,7 @@ if [ $# = 3 ]; then
     fi
   done
   n=0
-  for file in $(svn log -r$1:$3 -q -v | sed -n "/^\s*M/s#.*$2/##p");
+  for file in $(svn log -r$3:$1 -q -v | sed -n "/^\s*M/s#.*$2/##p");
   do
     modified_file_arr[$n]=$file
     ((n++))
@@ -37,7 +44,7 @@ else
   do
     echo $file
     dir=$(dirname $file)
-    whole_dir=r$1/$dir
+    whole_dir=$SAVE_DIR/$dir
     mkdir -p $whole_dir
     if [ ! -d $file ]; then
       #cp $file $whole_dir 
@@ -60,7 +67,7 @@ fi
 
 #svn up -r$last_ver
 
-DIFF_DIR=r$1"_"$last_ver
+DIFF_DIR=$SAVE_DIR"_ori"
 
 [ -d $DIFF_DIR ] && /bin/rm $DIFF_DIR -rf
 mkdir -p $DIFF_DIR
