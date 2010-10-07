@@ -19,7 +19,7 @@
 
 #set -o nounset                              # Treat unset variables as an error
 
-#svn_get_ver_modified_files "$src_dir" $highest_ver $lowest_ver "$dest_dir" "$cut_dir_string" 
+#svn_get_ver_modified_files "$src_dir" $higher_ver $lower_ver "$dest_dir" "$cut_dir_string" 
 function svn_get_ver_modified_files()
 {
   echo "$1" "$2" "$3" "$4" "$5"
@@ -30,29 +30,27 @@ function svn_get_ver_modified_files()
     return 1
   fi
   if [ $2 != $3 ]; then
-    local low_compare_ver=$(expr $3 + 1)
+    local lower_ver=$(expr $3 + 1)
   else
-    local low_compare_ver=$3;
+    local lower_ver=$3;
   fi
 
-  mkdir -p "$SAVE_DIR"
   cd $1
   svn log -r$2 > "$SAVE_DIR/svn_log_r$2.txt"
 
-  for file in $(svn log -r$low_compare_ver:$2 -q -v "$1" | sed -n "/^\s*M\|^\s*A\|^\s*U/s#.*$5/##p");
+  for file in $(svn log -r$lower_ver:$2 -q -v "$1" | sed -n "/^\s*M\|^\s*A\|^\s*U/s#.*$5/##p");
   do
     local dir=$(dirname "$file")
     local whole_dir="$SAVE_DIR/$dir"
     mkdir -p "$whole_dir"
     if [ ! -d "$file" ]; then
-      echo "$whole_dir/$(basename \"$file\")"
-      echo  "$whole_dir/$(basename \"$file\")"  
       local filename=$(basename "$file")  
+      echo  "$whole_dir/$filename"
       svn cat -r$2 "$file" > "$whole_dir/$filename"  2> /dev/null
     fi
   done
   n=0
-  for file in $(svn log -r$low_compare_ver:$2 -q -v | sed -n "/^\s*M/s#.*$5/##p");
+  for file in $(svn log -r$lower_ver:$2 -q -v | sed -n "/^\s*M/s#.*$5/##p");
   do
     local modified_file_arr[$n]="$file"
     ((n++))
@@ -61,7 +59,6 @@ function svn_get_ver_modified_files()
   local DIFF_DIR="$SAVE_DIR""_ori"
 
   [ -d $DIFF_DIR ] && /bin/rm $DIFF_DIR -rf
-  mkdir -p $DIFF_DIR
 
   for file in ${modified_file_arr[*]};
   do
@@ -73,43 +70,66 @@ function svn_get_ver_modified_files()
       echo $whole_dir$file
       #svn cat -r$3 "$file" > "$whole_dir/$(basename \"$file\")" 2>/dev/null
       local filename=$(basename "$file")  
-      svn cat -r$3 "$file" > "$whole_dir/$(filename)" 2>/dev/null
+      svn cat -r$3 "$file" > "$whole_dir/$filename" 2>/dev/null
     fi
   done
 }
 
-# svn_get_all_ver_modified_files "$src_dir" $highest_ver $lowest_ver "$dest_dir" "$cut_dir_string" 
+# svn_get_all_ver_modified_files "$src_dir" $higher_ver $lower_ver "$dest_dir" "$cut_dir_string" 
 function svn_get_all_ver_modified_files()
 {
   if [ $2 = $3 ];then
     svn_get_ver_modified_files "$1" "$2" "$3" "$4" "$5"
   else
     local ver_cnt=${#all_svn_ver[@]};
-    local ver_index=1;
-    local highest_ver=$2;
-    local lowest_ver=$3;
+    local ver_index=$(expr $ver_cnt - 1);
+    local higher_ver=$2;
+    local lower_ver=$3;
 
     if [ $ver_cnt -lt 2 ];then
       return;
     fi
 
-    while [ $ver_index -lt $ver_cnt ]; 
+    local v=${all_svn_ver[$ver_index]}
+    while [ $ver_index -gt 0 -a $v -gt $lower_ver ]; 
     do
-      local v=${all_svn_ver[$ver_index]}
-      if [ $v -ge $lowest_ver -a $v -lt $highest_ver ];then
-        local v_next=${all_svn_ver[$ver_index+1]}
-        svn_get_ver_modified_files "$1" $v_next $v "$4" "$5"
+      if [ $v -le $higher_ver ];then
+        local v_next=${all_svn_ver[$ver_index-1]}
+        svn_get_ver_modified_files "$1" $v $v_next "$4" "$5"
       fi
-      if [ $v -gt $highest_ver ];then 
-        break;
-      fi
-      ((ver_index++))
+      ((ver_index--))
     done
   fi
 
   return 0
 }
  
+#svn_get_uncommit_modified_files "$src_dir" "$dest_dir" 
+function svn_get_uncommit_modified_files()
+{
+  echo "$1" "$2" 
+  local date_str="$(date +%m%d_%T|tr -d ':')"
+  local SAVE_DIR="$2/uncommit/""r$highest_ver""_$date_str"
+  local DIFF_DIR="$SAVE_DIR""_ori"
+
+  cd $1
+  n=0
+  for file in $(svn diff |grep ^Index|awk '{print $2}');
+  do
+    echo $file
+    local dir=$(dirname "$file")
+    local whole_dir="$SAVE_DIR/$dir"
+    local whole_diff_dir="$DIFF_DIR/$dir"
+    mkdir -p "$whole_dir"
+    mkdir -p "$whole_diff_dir"
+    if [ ! -d "$file" ]; then
+      local filename=$(basename "$file")  
+      cp "$file" "$whole_dir/$filename"  2> /dev/null
+      svn cat -r$highest_ver "$file" > "$whole_diff_dir/$filename" 2>/dev/null
+    fi
+  done
+}
+
 while [ $# -gt 0 ];
 do
   case $1 in
@@ -135,6 +155,10 @@ do
     -s | -src_dir)
     shift
     src_dir="$1"
+    ;;
+    -u | -uncommit)
+    shift
+    unversion=1
     ;;
     *)
     echo "unknow parameter; exit!!"
@@ -169,9 +193,12 @@ fi
 
 echo "$src_dir" "$highest_ver" "$lowest_ver" "$dest_dir" "$cut_dir_string" "$only_one_ver"
 
-if [ -z "$only_one_ver" ]; then
-  svn_get_all_ver_modified_files "$src_dir" $highest_ver $lowest_ver "$dest_dir" "$cut_dir_string" 
+if [ ! -z "$unversion" ]; then
+  svn_get_uncommit_modified_files "$src_dir" "$dest_dir"
 else
-  svn_get_ver_modified_files "$src_dir" $highest_ver $lowest_ver "$dest_dir" "$cut_dir_string" 
+  if [ ! -z "$only_one_ver" ]; then
+    svn_get_ver_modified_files "$src_dir" $highest_ver $lowest_ver "$dest_dir" "$cut_dir_string" 
+  else
+    svn_get_all_ver_modified_files "$src_dir" $highest_ver $lowest_ver "$dest_dir" "$cut_dir_string" 
+  fi
 fi
-
