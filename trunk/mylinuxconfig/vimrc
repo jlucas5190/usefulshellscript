@@ -1,0 +1,1009 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Get out of VI's compatible mode..
+set nocompatible
+
+" Platform
+function! MySys()
+  if has("win32")
+    return "windows"
+  else
+    return "linux"
+  endif
+endfunction
+
+"Sets how many lines of history VIM har to remember
+set history=400
+set nocp
+set nu 
+set incsearch
+set autoindent
+set smartindent
+set noignorecase
+"set expandtab
+set shiftwidth=4
+set tabstop=4
+set hlsearch
+set iskeyword-=",/
+set history=500
+set textwidth=78
+set wrap
+set nowrapscan "http://blog.xuyu.org/?p=1215
+if &diff
+  "echo "in diff mode"
+  set wrap
+endif
+set whichwrap=b,s,h,l
+
+set fencs=utf-8,gbk,big5,euc-jp,utf-16le
+set fenc=utf-8 enc=utf-8 tenc=utf-8  "fenc; internal enc; terminal enc
+set termencoding=utf-8
+"set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
+set laststatus=2
+set statusline=\[%{getcwd()}]\[%f]%m%r%h%w\[HEX=\%02.2B]\[DEC=\%b]\[P=%l,%v]
+"set ofu=syntaxcomplete#Complete
+if has("autocmd") && exists("+omnifunc")
+    autocmd Filetype *
+    \	if &omnifunc == "" |
+    \		setlocal omnifunc=syntaxcomplete#Complete |
+    \	endif
+endif
+
+let tlist_txt_settings = 'txt;c:content;f:figures;t:tables'
+au BufRead,BufNewFile *.txt setlocal ft=txt
+au FileType help set nu
+
+"au BufRead ft=Help set nu
+set hid
+set cscopequickfix=s-,c-,d-,i-,t-,e-,g-
+set guioptions-=m
+"set cscopequickfix=""
+
+"Paste toggle - when pasting something in, don't indent.
+set pastetoggle=<F4>
+
+filetype plugin indent on 
+"cmap WQ<cr> wq<cr>
+"cabbr WQ<CR> wq<CR>
+cmap W<cr> w<cr>
+cmap WA<cr> wa<cr>
+"http://stackoverflow.com/questions/1694599/how-do-i-get-vims-sh-command-to-source-my-bashrc
+cmap sh<CR> !bash --login<CR>
+cabbr WQ wq
+cabbr QA qa
+cabbr Wq wq
+
+let mapleader=","
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Buffer realted
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Open a dummy buffer for paste
+"map <leader>ee :tabnew<cr>:setl buftype=nofile<cr>
+"map <leader>ee :new scratch<cr>:setl buftype=nofile<cr>
+if MySys() == "linux"
+"nmap <leader>es :tabnew ~/tmp/scratch.txt<cr>
+nmap <leader>es :tabnew ~/tmp/scratch<cr>:tabclose<cr>:b ~/tmp/scratch<cr>
+else
+map <leader>ec :tabnew $TEMP/scratch.txt<cr>
+endif
+
+nmap <leader>fg :cs find g 
+nmap <leader>fs :cs find s 
+nmap <leader>fc :cs find c 
+
+"Tab configuration
+nmap <leader>tt :tabnew
+nmap <leader>tn :tabn<cr>
+nmap <leader>tp :tabp<cr>
+nmap <leader>te :tabedit
+nmap <leader>tc :tabclose<cr>
+"nmap <leader>tm :tabmove
+try
+  set switchbuf=useopen
+  set stal=1
+catch
+endtry
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Command-line config
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Bash like
+cnoremap <C-A> <Home>
+cnoremap <C-E> <End>
+cnoremap <C-K> <C-U>
+
+nnoremap ,, ,
+nnoremap <silent> <F3> :Grep \<<cword>\> %<CR> <CR>
+nnoremap <silent> <F4> :Bgrep \<<cword>\> %<CR> <CR>
+"let @z="$jmzk%kzf'z"
+let @n=":s#^#///#,nl"
+
+let @m=":s#^#////#,nl"
+let @s=":s/^/#/,nl"
+let @z=":s#^#zzzz#,nl"
+let @u=":s#^////##,nl"
+
+nnoremap <silent> <F8> :TlistToggle<CR>
+nmap <silent> <C-6> <C-S-6>
+"nmap <silent> <C-i> i <ESC>
+nmap <silent> <C-n> :bn<cr>
+nmap <silent> <C-p> :bp<cr>
+"nmap <silent> <M-j> 4j
+"nmap <silent> j 4j
+"nmap <silent> k 4k
+if has("gui_running")
+    nmap <silent> ê <C-W>j
+    nmap <silent> ë <C-W>k
+    nmap <silent> è <C-W>h
+    nmap <silent> ì <C-W>l
+else
+    nmap <silent> j <C-W>j
+    nmap <silent> k <C-W>k
+    nmap <silent> h <C-W>h
+    nmap <silent> l <C-W>l
+endif
+
+nmap <silent>  <C-j> 4j
+nmap <silent>  <C-k> 4k
+nmap <silent>  <C-h> 4h
+nmap <silent>  <C-l> 4l
+"nmap <silent> <S-l> l
+"nmap <silent> <leader>b :bp<cr>
+nmap <silent> <leader>b <C-b>
+nmap <silent> <leader>d# :bd#<cr>
+nmap <silent> <leader>dtt :vertical diffsplit ~/tmp/tmp_work_file/%:t<cr>
+nmap <silent> <leader>do :windo diffoff!<cr>:bufdo diffoff!<cr>
+nmap <silent> <leader># :e#<cr>
+nmap <silent> <leader>df :diffthis<cr>
+nmap <silent> <leader>db :bdelete<cr>
+nmap <silent> <leader>dl :bdelete #<cr>
+nmap <silent> <leader>ddk :%s#.*karlzheng_todel.*\n##<cr>
+nmap <silent> <leader>ddm :%s#.*mz_debug.*\n##<cr>
+"nmap <silent> <leader>dtt :vs ~/tmp/tmp_work_file/%:t<cr>:diffthis<cr>
+nmap <silent> <leader>ea :!./a.out<cr>
+nmap <silent> <leader>ett :e ~/tmp/tmp_work_file/%:t<cr>
+nmap <silent> <leader>ev :e ~/.vimrc<cr>
+nmap <silent> <leader>vb :vs ~/.bashrc<cr>
+nmap <silent> <leader>f <C-f>
+nmap <silent> <leader>gg :call My_compile_command()<cr>
+nmap <silent> <leader>ls :ls<cr>
+"nmap <silent> <leader>ll :ls<cr>
+nmap <silent> <leader>mj :!make -j4<cr>
+nmap <silent> <leader>mz :!make zImage -j4<cr>
+"nmap <silent> <leader>n :bn<cr>
+nmap <silent> <leader>nl :nohl<cr>
+nmap <silent> <leader>nn :set nonu<cr>
+"nmap <silent> <leader>rb :r ~/tmp/logob.c<cr>
+"nmap <silent> <leader>rf :r ~/tmp/printf.c<cr>
+nmap <silent> <leader>rf oprintf("mz_debug_msg %s %s %d\n", __FILE__, __func__, __LINE__);<ESC>
+"nmap <silent> <leader>rk :r ~/tmp/printk.c<cr>
+nmap <silent> <leader>rk oprintk("mz_debug_msg %s %s %d\n", __FILE__, __func__, __LINE__);<ESC>
+nmap <silent> <leader>rd :r ~/tmp/delay.c<cr>
+nmap <silent> <leader>rr :reg<cr>
+nmap <silent> <leader>rs :r ~/tmp/dump_stack.c<cr>
+nmap <silent> <leader>rm :r ~/tmp/main.c<cr>
+"nmap <silent> <leader>rtt :r ~/tmp/%:t<cr>
+nmap <silent> <leader>sd :!svn diff  %<cr>
+nmap <silent> <leader>sp :set paste<cr>
+nmap <silent> <leader>sn :set nu<cr>
+nmap <silent> <leader>srv :!svn revert %<cr>
+nmap <silent> <leader>tl :TlistToggle<cr>
+nmap <silent> <leader>vs :vs<cr>
+nmap <silent> <leader>vt :vs ~/tmp/tmp_work_file/%:t<cr>
+nmap <leader>wt1 :w ~/tmp/tmp_work_file/1.txt<cr>
+nmap <leader>wtt :w ~/tmp/tmp_work_file/%:t<cr>
+nmap <leader>wtf :w! ~/tmp/tmp_work_file/%:t<cr>
+
+nmap <silent> <leader>wa :wa<cr>
+nmap <silent> <leader>wf :w!<cr>
+nmap <silent> <leader>wq :wq<cr>
+nmap <silent> <leader>ww :w<cr>
+
+nmap <silent> zi zfi{<cr>
+
+nmap <silent> <leader>qq :q<cr>
+nmap <silent> <leader>qw :wq<cr>
+nmap <silent> <leader>qf :q!<cr>
+nmap <silent> <leader>qa :qa<cr>
+
+"Fast remove highlight search
+nmap <silent> <leader><cr> :noh<cr>
+
+"nmap <silent> <leader>pt :!pt.sh &<cr><cr>
+"nmap <leader>pt :!pt.sh &<cr><cr>
+nmap <silent><leader>pt :!p &<cr><cr>
+nmap <silent> <leader>pv :sp /tmp/pt.txt<cr>2<C-W>_<C-W><C-W>
+nmap <silent> <leader>pp "0p
+nmap <silent> <leader>P "0P
+nmap <silent> <leader>cf :cgete getmatches()<cr>
+
+vmap <silent> <leader>p "0p
+vmap <silent> <leader>P "0P
+
+vmap <silent> j 4j
+vmap <silent> k 4k
+
+   """"""""""""""""""""""""""""""
+   " Plugin setting
+   """"""""""""""""""""""""""""""
+   
+   """"""""""""""""""""""""""""""
+   " taglist setting
+   """"""""""""""""""""""""""""""
+   if MySys() == "windows"
+     let Tlist_Ctags_Cmd = 'ctags'
+   elseif MySys() == "linux"
+     let Tlist_Ctags_Cmd = '/usr/bin/ctags'
+   endif
+   let g:Tlist_Show_One_File = 1
+   let Tlist_Show_One_File = 1
+   let Tlist_Exit_OnlyWindow = 1
+   let Tlist_Use_Right_Window = 0
+   nmap <silent> <leader>tl :Tlist<cr>
+
+   """"""""""""""""""""""""""""""
+   " winmanager setting
+   """"""""""""""""""""""""""""""
+   let g:winManagerWindowLayout = "TagList|FileExplorer,BufExplorer"
+   "let g:winManagerWindowLayout = "FileExplorer|BufExplorer"
+   let g:winManagerWidth = 30
+   let g:defaultExplorer = 0
+   nmap <C-W><C-F> :FirstExplorerWindow<cr>
+   nmap <C-W><C-B> :BottomExplorerWindow<cr>
+   nmap <silent> <leader>wm :WMToggle<cr>
+   autocmd BufWinEnter \[Buf\ List\] setl nonumber
+
+   """"""""""""""""""""""""""""""
+   " netrw setting
+   """"""""""""""""""""""""""""""
+   let g:netrw_winsize = 30
+   nmap <silent> <leader>fe :Sexplore!<cr>
+   
+   """"""""""""""""""""""""""""""
+   " file explorer setting
+   """"""""""""""""""""""""""""""
+   "Split vertically
+   let g:explVertical=1
+
+   "Window size
+   let g:explWinSize=35
+
+   let g:explSplitLeft=0
+   let g:explSplitRight=1
+   let g:explSplitBelow=1
+
+   "Hide some files
+   let g:explHideFiles='^\.,.*\.class$,.*\.swp$,.*\.pyc$,.*\.swo$,\.DS_Store$'
+
+   "Hide the help thing..
+   let g:explDetailedHelp=0
+
+   """"""""""""""""""""""""""""""
+   " markbrowser setting
+   """"""""""""""""""""""""""""""
+   nmap <silent> <leader>mk :MarksBrowser<cr>
+
+   """"""""""""""""""""""""""""""
+   " showmarks setting
+   """"""""""""""""""""""""""""""
+   " Enable ShowMarks
+   let showmarks_enable = 1
+   " Show which marks
+   let showmarks_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+   " Ignore help, quickfix, non-modifiable buffers
+   let showmarks_ignore_type = "hqm"
+   " Hilight lower & upper marks
+   let showmarks_hlline_lower = 1
+   let showmarks_hlline_upper = 1
+
+   """"""""""""""""""""""""""""""
+   " mark setting
+   """"""""""""""""""""""""""""""
+   nmap <silent> <leader>hl <Plug>MarkSet
+   vmap <silent> <leader>hl <Plug>MarkSet
+   nmap <silent> <leader>hh <Plug>MarkClear
+   vmap <silent> <leader>hh <Plug>MarkClear
+   nmap <silent> <leader>hr <Plug>MarkRegex
+   vmap <silent> <leader>hr <Plug>MarkRegex
+
+   """"""""""""""""""""""""""""""
+   " minibuffer setting
+   """"""""""""""""""""""""""""""
+   "let loaded_minibufexplorer = 1         " *** Enable minibuffer plugin
+   let g:miniBufExplorerMoreThanOne = 2   " Display when more than 2 buffers
+   let g:miniBufExplSplitToEdge = 1       " Always at top
+   let g:miniBufExplMaxSize = 3           " The max height is 3 lines
+   "let g:miniBufExplMapWindowNavVim = 1   " map CTRL-[hjkl]
+   let g:miniBufExplUseSingleClick = 1    " select by single click
+   let g:miniBufExplModSelTarget = 1      " Dont change to unmodified buffer
+   "let g:miniBufExplForceSyntaxEnable = 1 " force syntax on
+   "let g:miniBufExplVSplit = 25
+   "let g:miniBufExplSplitBelow = 0
+
+   autocmd BufRead,BufNew :call UMiniBufExplorer
+   
+   """"""""""""""""""""""""""""""
+   " bufexplorer setting
+   """"""""""""""""""""""""""""""
+   let g:bufExplorerDefaultHelp=1       " Do not show default help.
+   let g:bufExplorerShowRelativePath=1  " Show relative paths.
+   let g:bufExplorerSortBy='mru'        " Sort by most recently used.
+   let g:bufExplorerSplitRight=1        " Split right.
+   let g:bufExplorerSplitVertical=1     " Split vertically.
+   let g:bufExplorerSplitVertSize=3  " Split width
+   let g:bufExplorerUseCurrentWindow=1  " Open in new window.
+   let g:bufExplorerMaxHeight=240        " Max height
+
+""""""""""""""""""""""""""""""
+" Visual
+""""""""""""""""""""""""""""""
+" From an idea by Michael Naumann
+function! VisualSearch(direction) range
+  let l:saved_reg = @"
+  execute "normal! vgvy"
+  let l:pattern = escape(@", '\\/.*$^~[]')
+  let l:pattern = substitute(l:pattern, "\n$", "", "")
+  if a:direction == 'b'
+    execute "normal ?" . l:pattern . "^M"
+  else
+    execute "normal /" . l:pattern . "^M"
+  endif
+  let @/ = l:pattern
+  let @" = l:saved_reg
+endfunction
+
+"Basically you press * or # to search for the current selection !! Really useful
+"vnoremap <silent> * :call VisualSearch('f')<CR>
+"vnoremap <silent> # :call VisualSearch('b')<CR>
+
+function! MyNormalSearch(direction) range
+  let l:saver_reg = @"
+  execute "normal! yiw"
+  let l:pattern = escape(@", '\\/.*$^~[]')
+  let l:pattern = substitute(l:pattern, "\n$", "", "")
+  if a:direction == 'b'
+    execute "normal ?" . l:pattern . "^M"
+  else
+    execute "normal /" . l:pattern . "^M"
+  endif
+  let @/ = l:pattern
+  let @" = l:saved_reg
+endfunction
+
+"nnoremap <silent> * :call MyNormalSearch('f')<CR>
+"nnoremap <silent> # :call MyNormalSearch('b')<CR>
+
+set hid
+
+inoremap <expr> <CR>       pumvisible()?"\<C-Y>":"\<CR>"
+vnoremap <Leader># "9y?<C-R>='\V'.substitute(escape(@9,'\?'),'\n','\\n','g')<CR><CR>
+vnoremap <Leader>* "9y/<C-R>='\V'.substitute(escape(@9,'\/'),'\n','\\n','g')<CR><CR>
+"inoremap <C-l> <C-o>:set im<cr><C-l>
+inoremap <C-o> <C-c>
+"nnoremap <C-l> :set noim<cr>
+
+"cs add /root/source/android2.0/cscope.out /root/source/android2.0
+"set tags=/root/source/android2.0/tags
+"set tags=./tags
+set tags=/usr/include/tags 
+if filereadable("./tags")
+  let mytags="tags+=" . getcwd() . "/tags" 
+  if filereadable("./newtags")
+      let mytags=mytags . "," . getcwd() . "/newtags" 
+  endif
+  exe "set " . mytags
+endif
+
+if filereadable("/usr/bin/gtags")
+    set cscopetag
+    set cscopeprg=gtags-cscope
+    "set cscopequickfix=c-,d-,e-,f-,g0,i-,s-,t-
+    "cs add GTAGS
+    let mycstags="cs add " . getcwd() . "/GTAGS"
+    exe mycstags
+    unlet mycstags
+else
+    if filereadable("./cscope.out")
+        let mycstags="cs add " . getcwd() . "/cscope.out"
+        exe mycstags
+        unlet mycstags
+    endif
+    if filereadable("./newcscope.out")
+      let mycstags="cs add " . getcwd() . "/newcscope.out"
+      exe mycstags
+      unlet mycstags
+    endif
+endif
+
+
+"set autochdir
+
+"" Lookup plugin
+"  let g:LookupFile_MinPatLength = 4 
+"  let g:LookupFile_PreserveLastPattern = 0
+"  let g:LookupFile_PreservePatternHistory = 1
+"  let g:LookupFile_AlwaysAcceptFirst = 1     
+"  let g:LookupFile_AllowNewFiles = 0          
+"if filereadable("./filenametags")
+"  let g:LookupFile_TagExpr = '"./filenametags"' 
+"  """"""""""""""""""""""""""""""
+"  " lookupfile setting
+"  """"""""""""""""""""""""""""""
+"  if filereadable("./filenametags")               
+"    let g:LookupFile_TagExpr = '"./filenametags"'
+"  endif
+""  nmap <silent><leader>lk <Plug>LookupFile<cr>
+""  nmap <silent><leader>lb :LUBufs<cr>
+""  nmap <silent><leader>lw :LUWalk<cr>
+"  nmap <silent><leader>lk :LUTags<cr>
+"  nmap <silent><leader>lb :LUBufs<cr>
+"  nmap <silent><leader>lw :LUWalk<cr>
+"endif
+
+if has("cscope")
+  nmap {c :cscope find c <cword><CR>
+  nmap [d :cscope find d <cword><CR>
+  nmap [e :cscope find e <cword><CR>
+  nmap [f :cscope find f <cword><CR>
+  nmap [g :cscope find g <cword><CR>
+  nmap [i :cscope find i <cword><CR>
+  nmap [I :cscope find i %:t<CR>
+  nmap [s :cscope find s <cword><CR>
+  nmap [t :cscope find t <cword><CR>
+  "if filereadable("/root/source/android2.0/cscope.out")
+"  if filereadable("./cscope.out")
+"    cscope add cscope.out
+"  endif
+endif
+
+""copy from easwy
+
+   """"""""""""""""""""""""""""""
+   " lookupfile setting
+   """"""""""""""""""""""""""""""
+   let g:LookupFile_MinPatLength = 4
+   let g:LookupFile_PreserveLastPattern = 0
+   let g:LookupFile_PreservePatternHistory = 0
+   let g:LookupFile_AlwaysAcceptFirst = 1
+   let g:LookupFile_AllowNewFiles = 0
+   let g:LookupFile_UsingSpecializedTags = 1
+   let g:LookupFile_Bufs_LikeBufCmd = 0
+   let g:LookupFile_ignorecase = 1
+   let g:LookupFile_smartcase = 1
+   if filereadable("./filenametags")
+       let g:LookupFile_TagExpr = '"./filenametags"'
+   endif
+   nmap <silent> <leader>lk :LUTags<cr>
+   nmap <silent> <leader>lf :LUTags <C-R>=expand("<cword>")<cr><cr>
+   nmap <silent> <leader>ll :LUBufs<cr>
+   nmap <silent> <leader>lw :LUWalk<cr>
+
+
+   " lookup file with ignore case
+   function! LookupFile_IgnoreCaseFunc(pattern)
+       let _tags = &tags
+       try
+           let &tags = eval(g:LookupFile_TagExpr)
+           let newpattern = '\c' . a:pattern
+           let tags = taglist(newpattern)
+       catch
+           echohl ErrorMsg | echo "Exception: " . v:exception | echohl NONE
+           return ""
+       finally
+           let &tags = _tags
+       endtry
+
+
+       " Show the matches for what is typed so far.
+       let files = map(tags, 'v:val["filename"]')
+       return files
+   endfunction
+   let g:LookupFile_LookupFunc = 'LookupFile_IgnoreCaseFunc'
+
+" for  # * quick lookup
+set iskeyword+=-,_
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" MISC
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+   "Quickfix
+   nmap <leader>cn :cn<cr>
+   nmap <leader>cp :cp<cr>
+   "nmap <leader>cw :cw 15<cr>
+   nmap <leader>cw :vert copen 45<cr>
+   nmap <leader>cq :cclose<cr>
+   "nmap <leader>cc :botright lw 10<cr>
+   "map <c-u> <c-l><c-j>:q<cr>:botright cw 10<cr>
+
+let Tlist_Show_One_File = 1
+autocmd FileType c,cpp,h,hpp set shiftwidth=8 |set tabstop=8 | set iskeyword -=-,>
+"autocmd FileType c,cpp set shiftwidth=4 | set expandtab | set iskeyword -=-
+"autocmd FileType c,cpp set fo=tcq
+
+"autocmd FileType sh set dictionary+=~/.vim/usr_bin_cmd.txt,~/.vim/bash-support/wordlists/bash.list
+set dictionary+=~/.vim/usr_bin_cmd.txt,~/.vim/bash-support/wordlists/bash.list
+
+
+" Rename.vim  -  Rename a buffer within Vim and on the disk
+"
+" Copyright June 2007 by Christian J. Robinson <heptite@gmail.com>
+"
+" Distributed under the terms of the Vim license.  See ":help license".
+"
+" Usage:
+"
+" :Rename[!] {newname}
+
+command! -nargs=* -complete=file -bang Rename :call Rename("<args>", "<bang>")
+function! Rename(name, bang)
+    let l:curfile = expand("%:p")
+    let v:errmsg = ""
+    silent! exe "saveas" . a:bang . " " . a:name
+    if v:errmsg =~# '^$\|^E329'
+        if expand("%:p") !=# l:curfile && filewritable(expand("%:p"))
+            silent exe "bwipe! " . l:curfile
+            if delete(l:curfile)
+                echoerr "Could not delete " . l:curfile
+            endif
+        endif
+    else
+        echoerr v:errmsg
+    endif
+endfunction
+
+" http://vim.wikia.com/wiki/Autocmd_to_update_ctags_file
+function! UPDATE_TAGS()
+  let _f_ = expand("%:p")
+  let _cmd_ = '"ctags -a -f /dvr/tags --c++-kinds=+p --fields=+iaS --extra=+q " ' . '"' . _f_ . '"'
+  let _resp = system(_cmd_)
+  unlet _cmd_
+  unlet _f_
+  unlet _resp
+endfunction
+"autocmd BufWrite *.cpp,*.h,*.c call UPDATE_TAGS()
+
+autocmd! bufwritepost .vimrc source ~/.vimrc
+
+function! <SID>BufCloseOthers()
+   let l:currentBufNum   = bufnr("%")                                  
+   let l:alternateBufNum = bufnr("#")                                  
+   for i in range(1,bufnr("$"))                                        
+     if buflisted(i)
+       if i!=l:currentBufNum
+         execute("bdelete ".i)                                         
+       endif                                                           
+     endif                                                             
+   endfor
+endfunction
+command! BcloseOthers call <SID>BufCloseOthers()                       
+map <leader>ddo :BcloseOthers<cr>                                      
+
+" Don't close window, when deleting a buffer
+command! Bclose call <SID>BufcloseCloseIt()
+
+function! <SID>BufcloseCloseIt()
+   let l:currentBufNum = bufnr("%")
+   let l:alternateBufNum = bufnr("#")
+
+   if buflisted(l:alternateBufNum)
+     buffer #
+   else
+     bnext
+   endif
+
+   if bufnr("%") == l:currentBufNum
+     new
+   endif
+
+   if buflisted(l:currentBufNum)
+     execute("bdelete! ".l:currentBufNum)
+   endif
+endfunction
+
+"Actually, the tab does not switch buffers, but my arrows
+"Bclose function can be found in "Buffer related" section
+"map <leader>bd :Bclose<cr>
+map <leader>bd :Bclose<cr>
+"map <down> <leader>bd
+
+function! <SID>Myediff()
+   let l:cur_line_text  = getline(".")                                 
+   let l:next_nr = line(".") + 1 
+   let l:next_line_text = getline(l:next_nr)                           
+"   echo l:next_line_text                                              
+"   echo l:cur_line_text
+   execute ":e ".l:cur_line_text
+   execute ":only "
+"   execute ":e ".l:next_line_text
+   execute ":vertical diffsplit ".l:next_line_text                     
+endfunction
+command! Mediff call <SID>Myediff()                                    
+map <leader>md :Mediff<cr>    
+
+"function! BufPos_ActivateBuffer(num)
+"    let l:count = 1
+"    for i in range(1, bufnr("$"))
+"        echo i
+"        if buflisted(i) && getbufvar(i, "&modifiable")
+"            if l:count == a:num
+"                exe "buffer " . i
+"                return
+"            endif
+"            let l:count = l:count + 1
+"        endif
+"    endfor
+"    echo "No buffer!"
+"endfunction
+"function! BufPos_Initialize()
+"    for i in range(1, 9)
+"        exe "map <M-" . i . "> :call BufPos_ActivateBuffer(" . i . ")<CR>"
+"    endfor
+"    exe "map <M-0> :call BufPos_ActivateBuffer(10)<CR>"
+"endfunction
+function! BufPos_Initialize()
+    for i in range(1, 9)
+        "exe "nmap <M-" . i . "> :b". i ."<CR>"
+        "exe "nmap <ESE>" . i . " :b". i ."<CR>"
+        exe "nmap " . i . " :b". i ."<CR>"
+    endfor
+    exe "nmap 0 :tabnew scratch<cr>:tabclose<cr>:b scratch<cr>:setl buftype=nofile<cr>"
+endfunction
+autocmd VimEnter * call BufPos_Initialize()
+
+function! MyGotoNofileBuffer()
+   "let l:count = 1
+   "for i in range(1, bufnr("$"))
+       "if getbufvar(i, '&buftype') == 'nofile' 
+       "if buflisted(i) && getbufvar(i, "&modifiable")
+           "if l:count == a:num
+               "exe "buffer " . i
+               "return
+           "endif
+           "let l:count = l:count + 1
+       "endif
+   "endfor
+   "echo "No buffer!"
+endfunction
+
+"http://www.vimer.cn/2010/01/饭前甜点-vimgvim自动在cpp文件中添加-h文件包含.html
+function! InsertIncludeFileI()
+    let sourcefilename=expand("%:t")
+    let outfilename=substitute(sourcefilename,'\(\.[^.]*\)$','.h','g')
+    call setline('.','#include "'.outfilename.'"')
+endfunction
+"imap <c-b><c-h> <ESC>:call InsertIncludeFileI()<CR>
+imap <c-i><c-h> <ESC>:call InsertIncludeFileI()<CR>
+function! InsertIncludeFileN()
+    let sourcefilename=expand("%:t")
+    let outfilename=substitute(sourcefilename,'\(\.[^.]*\)$','.h','g')
+    call setline('.','#include "'.outfilename.'"')
+endfunction
+nmap ,hh :call InsertIncludeFileN()<CR>
+
+function! My_VIM_FUNC()
+  let str = getcwd()
+  return str
+  "return "test"
+endfunction
+
+" Defining these functions here simplifies the job of initializing dirStack.
+function! s:Escape(dir)
+  " See rules at :help 'path'
+  return escape(escape(escape(a:dir, ','), "\\"), ' ')
+endfunction
+
+"Switch to current dir
+function! My_ChangeToFilePath()
+  try
+    if exists("g:last_work_path")
+      let g:last_last_work_path = g:last_work_path
+    endif
+  catch
+    echo v:errmsg
+  endtry
+  let g:last_work_path = escape(getcwd(), " ")
+  let str = expand("%:p:h")
+  let str = s:Escape(str)
+  "let str = escape(str, " ")
+  execute "cd ".str
+endfunction
+
+"Switch to current dir
+function! My_SaveVimFilePath()
+  let str = expand("%:p:h")
+  let str = s:Escape(str)
+  execute ":!echo '".str."' > /dev/shm/vim_cur_file_path"
+endfunction
+
+function! My_ChangeToLastPath()
+  execute "cd ".g:last_work_path
+endfunction
+
+function! My_ChangeToRootPath()
+  execute "cd ".g:root_work_path
+endfunction
+
+function! Edit_kernel_V40_file()
+    let l:curfile = expand("%:p")
+    let l:curfile = escape(l:curfile,  ",\\ ")
+    "echo l:curfile 
+    try
+      let l:diff_file = substitute(l:curfile, "linux-2.6.35-meizu", "v4.0", "")
+    catch
+      echo v:errmsg
+    endtry
+    "echo l:diff_file 
+    "execute ":vertical split ".l:diff_file."<cr>"
+    execute ":vertical split ".l:diff_file
+endfunction
+
+nmap <leader>edv :call Edit_kernel_V40_file()<cr>
+
+let g:root_work_path = escape(getcwd(), " ")
+"nmap <silent> <leader>cd :cd %:p:h<cr>
+"nmap <silent> <leader>cd :call My_ChangeToFilePath()<cr>
+nmap <silent> <leader>cdc :call My_ChangeToFilePath()<cr>
+nmap <silent> <leader>cdl :call My_ChangeToLastPath()<cr>
+nmap <silent> <leader>cdr :call My_ChangeToRootPath()<cr>
+nmap <silent> <leader>cdv :call My_SaveVimFilePath()<cr><cr>
+
+function! My_compile_command()
+  let l:ext = expand("%:e")
+  if (l:ext == "cpp") 
+    exec "!g++ ".expand("%")
+  elseif (l:ext == "c")
+    exec "!gcc ".expand("%")
+  endif
+endfunction
+
+function! Select_for_compare()
+    let g:select_for_compare_file1 = expand("%:p")
+    echo g:select_for_compare_file1
+endfunction
+nmap <silent> <leader>ba :call Select_for_compare()<cr>
+
+function! Compare_to_selected()
+    let g:select_for_compare_file2 = expand("%:p")
+    echo g:select_for_compare_file2
+    let l:cmd_text = "!bcompare "."\"".g:select_for_compare_file1."\""." \"".g:select_for_compare_file2."\" \&"
+    echo g:select_for_compare_file2
+    execute l:cmd_text
+endfunction
+nmap <silent> <leader>bb :call Compare_to_selected()<cr>
+
+function! My_test1()
+  redir => g:mymsg
+  silent execute "pwd"
+  redir END
+  echo g:mymsg
+endfunction
+
+function! My_test2()
+  "redir => g:mymsg
+  execute "cd /usr/src"
+  "redir END
+  "echo g:mymsg
+endfunction
+
+function! My_test5()
+  let mystr = My_test4()
+  echo "abc".mystr
+endfunction
+
+function! My_test4()
+  let v:statusmsg=""
+  execute "cd /usr/src"
+  echo v:statusmsg
+  return v:statusmsg
+  "let g:mymsg = v:statusmsg
+endfunction
+
+function! My_test3()
+  redir => g:mymsg
+  "execute "cd /usr/src"
+  "silent execute "cd /usr/src"
+  silent execute "pwd"
+  redir END
+  "silent put=mymsg
+  echo g:mymsg
+  echo g:mymsg
+  "execute "echo mymsg"
+  "return mymsg
+  "return "testabc"
+  "let str = execute("pwd")
+   execute ":vertical diffsplit ".l:next_line_text
+endfunction
+command! Mediff call <SID>Myediff()
+map <leader>md :Mediff<cr>
+
+function! My_search_back()
+    SearchNext("b")
+endfunction
+
+imap <silent> <C-j> <C-g><C-j>
+imap <silent> <C-k> <C-g><C-k>
+imap <silent> <C-h> <Left>
+inoremap <silent> <C-l> <Right>
+imap <silent> <C-a> <Home>
+imap <silent> <C-e> <End>
+
+
+"http://askubuntu.com/questions/67/how-do-i-enable-full-color-support-in-terminal
+if $COLORTERM == 'gnome-terminal'
+      set t_Co=256
+endif
+
+"colorscheme desert
+
+"Colorsheme Scroller, http://www.vim.org/scripts/script.php?script_id=1488
+map <silent><F2> :NEXTCOLOR<cr>
+"map <silent><F3> :PREVCOLOR<cr> 
+"
+
+"colorscheme borland
+
+    " color scheme
+    if has("gui_running")
+        "set guioptions-=T
+        "set guioptions-=m
+        "set guioptions-=L
+        "set guioptions-=r
+        "colorscheme darkblue_my
+        colorscheme borland
+        "hi normal guibg=#294d4a
+    else
+        colorscheme 256_adaryn
+        "colorscheme desert_my
+    endif " has
+
+
+"autocmd BufEnter * call DoWordComplete()
+
+"setlocal noswapfile 
+"set noswf
+"
+"
+
+"nnoremap <leader>h :call HighlightNearCursor()<CR>
+function! HighlightNearCursor()
+  if !exists("s:highlightcursor")
+    match Todo /\k*\%#\k*/
+    let s:highlightcursor=1
+  else
+    match None
+    unlet s:highlightcursor
+  endif
+endfunction
+
+"http://tech.groups.yahoo.com/group/vim/message/105517
+":au CursorHold * exec 'match IncSearch /'.expand("<cword>").'/'
+"nnoremap <leader>h :exec 'match IncSearch /'.expand("<cword>").'/'<cr>
+
+nnoremap * *N
+nnoremap # #N
+
+nnoremap <silent> * :execute "norm! *N"<cr>
+
+"function! AddNewFileTag()
+  "let l:curfile = expand("%:p")
+  "let l:command="!cscope -bkq " . l:curfile
+  "exe l:command
+"endfunction
+"nmap <leader>at :call AddNewFileTag()<cr>
+
+"http://vim.wikia.com/wiki/Autocmd_to_update_ctags_file
+function! UPDATE_TAGS()
+  let _f_ = expand("%:p")
+  let _cmd_ = '"ctags -a --c++-kinds=+p --fields=+iaS --extra=+q " ' . '"' . _f_ . ' & "'
+  let _resp = system(_cmd_)
+  "let _cmd_ = 'cscope -bkq -i cscope.files &'
+  "let _resp = system(_cmd_)
+  unlet _cmd_
+  unlet _f_
+  unlet _resp
+  if filereadable("/usr/bin/gtags")
+      "exec ':silent !global -u > /dev/null 2>&1 &'
+  endif
+  ":cs reset
+endfunction
+autocmd BufWrite *.cpp,*.h,*.c call UPDATE_TAGS()
+
+"function! UPDATE_Cscope()
+  "let _f_ = expand("%:p")
+  "let _cmd_ = '"newtags.sh" ' . '"' . _f_ . '"'   
+  "let _resp = system(_cmd_)
+  ":cs reset
+  "unlet _cmd_
+  "unlet _f_
+  "unlet _resp
+"endfunction
+"autocmd BufWrite *.cpp,*.h,*.c call UPDATE_Cscope()
+
+"http://vim.wikia.com/wiki/Automatically_create_and_update_cscope_database
+"nmap <F11> :!find . -newer cscope.out -iname '*.c' -o -newer cscope.out -iname '*.cpp' -o -newer cscope.out -iname '*.h' -o -newer cscope.out -iname '*.hpp' >> cscope.files<CR>
+  "\:!cscope -bkq -i cscope.files<CR>:cs reset<CR>
+"nmap <F10> :!find . -newer tags -iregex '.*\.\(c\|cpp\|h\|hpp\)$' >> cscope.files<CR>:!cscope -bkq -i cscope.files<CR>:cs reset<CR>
+
+function! UPDATE_Cscope()
+  "let _cmd_ = 'find ' . g:root_work_path . ' -newer tags -iregex ".*\.\(c\|cpp\|h\|hpp\)$" >> cscope.files'   
+  "let _resp = system(_cmd_)
+  let _cmd_ = 'cscope -bkq -i cscope.files &'   
+  let _resp = system(_cmd_)
+  unlet _cmd_
+  unlet _resp
+  if filereadable("/usr/bin/gtags")
+      exec ":!global -u &"
+  endif
+  :cs reset
+endfunction
+nmap <leader>at :call UPDATE_Cscope()<cr>
+
+function! MarkCurrentEditFileName()
+  let _f_ = expand("%:p")
+  let _cmd_ = 'echo ' . '"' . _f_ . '" > /dev/shm/vim_cur_edit_file'
+  let _resp = system(_cmd_)
+  unlet _cmd_
+  unlet _f_
+  unlet _resp
+endfunction
+nmap <leader>an :call MarkCurrentEditFileName()<cr>
+
+function! UpdateGtags(f)
+    let l:root_gtags_file=g:root_work_path . "/GTAGS" 
+    if filereadable(l:root_gtags_file) && filereadable("/usr/bin/gtags")
+        let dir = fnamemodify(a:f, ':p:h')
+        exe 'silent !cd ' . dir . ' && global -u &> /dev/null &'
+    endif
+endfunction
+au BufWritePost *.c,*.h,*.hpp,*.cpp,*.java call UpdateGtags(expand('<afile>'))
+
+command! -nargs=+ -complete=dir FindFiles :call FindFiles(<f-args>)
+"http://forum.ubuntu.org.cn/viewtopic.php?f=68&t=343460
+"au VimEnter * call VimEnterCallback()
+"au BufAdd *.[ch] call FindGtags(expand('<afile>'))
+
+function! FindFiles(pat, ...)
+     let path = ''
+     for str in a:000
+         let path .= str . ','
+     endfor
+ 
+     if path == ''
+         let path = &path
+     endif
+ 
+     echo 'finding...'
+     redraw
+     call append(line('$'), split(globpath(path, a:pat), '\n'))
+     echo 'finding...done!'
+     redraw
+endfunc
+ 
+function! VimEnterCallback()
+     for f in argv()
+         if fnamemodify(f, ':e') != 'c' && fnamemodify(f, ':e') != 'h'
+             continue
+         endif
+         call FindGtags(f)
+     endfor
+endfunc
+ 
+function! FindGtags(f)
+     let dir = fnamemodify(a:f, ':p:h')
+     while 1
+         let tmp = dir . '/GTAGS'
+         if filereadable(tmp)
+             exe 'cs add ' . tmp . ' ' . dir
+             break
+         elseif dir == '/'
+             break
+         endif
+ 
+         let dir = fnamemodify(dir, ":h")
+     endwhile
+endfunc
+
+

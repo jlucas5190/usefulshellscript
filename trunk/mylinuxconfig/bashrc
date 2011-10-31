@@ -1,0 +1,656 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
+
+# don't put duplicate lines in the history. See bash(1) for more options
+# ... or force ignoredups and ignorespace
+HISTCONTROL=ignoredups:ignorespace
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+    . /etc/bash_completion
+fi
+
+#    . /etc/bash_completion
+
+unalias ls
+alias ls='ls --color=tty -a '
+#alias ls='ls --color '
+alias ll='ls -l '
+#alias la='ls -A'
+alias lr='ls -latr'
+alias l='ls -CF '
+alias cd.='cd ../..'
+alias cd..='cd ../../..'
+alias cdd="cd ../diff_vers/$(basename $(pwd))"
+
+#alias mkmm='make menuconfig '
+alias mz='make zImage -j16 '
+alias mj='make -j8 '
+alias mto='mount -o loop '
+alias mt3='mount -t ext3 '
+alias mtnfs=' mount -t nfs '
+alias smbmount242='mount |grep -q 242; if [ $? = 0 ];then sudo umount /media/x;fi;sudo smbmount //172.16.10.242/home/svn /media/x/ -o iocharset=utf8,dir_mode=0777,file_mode=0777,username=zkl'
+alias smbmount242_home='sudo smbmount //172.16.10.242/home/ /media/242/ -o iocharset=utf8,username=zkl,dir_mode=0777,file_mode=0777'
+alias smbmount99='sudo umount /media/mzf/;sudo smbmount //172.16.10.99/开发部/ /media/mzf/ -o iocharset=utf8,username=zhengkl,password=zheng09,dir_mode=0777,file_mode=0777'
+alias smbmount99_common='sudo smbmount //172.16.10.99/开发部公共文件夹/ /media/mzf_common/ -o iocharset=utf8,username=zhengkl,password=zheng09,dir_mode=0777,file_mode=0777'
+alias cp='cp -i '
+alias pu='pushd .'
+alias pu1='pushd +1'
+alias po='popd'
+alias CD='cd'
+alias LS='ls'
+alias lt='ls -lat '
+alias ltr='ls -latr '
+#alias la='ls -las '
+alias la='ls -latr'
+alias lac='ls arch/arm/configs'
+alias lsr='ls -lasr '
+alias lm='ls arch/arm/configs/meizu*'
+alias lsr='ls -lasr '
+alias lS='ls -laSr '
+alias VI='vi'
+alias grep='grep --exclude-dir=.svn'
+alias diff='diff -x .svn'
+alias svnaw="svn diff | grep ^Index | awk '{printf \$2 \" \"}END{print \" \"}'"
+alias svnaw_touch="svn diff | grep ^Index | awk '{printf \$2 \" \"}END{print \" \"}' |xargs touch"
+#alias mydate="echo $(date +%Y%m%d_%T)"
+#alias svnawtar="date_str=$(date +%Y%m%d_%T) && tmp_file_name=svn_diff_$date_str && svnaw |xargs \
+#tar --force-local -rvf \$tmp_file_name.tar && echo \$tmp_file_name && unset \
+#tmp_file_namei && unset date_str"
+alias h='history|tail -n 30'
+export HISTCONTROL="erasedups:ignoreboth"
+#HISTCONTROL="erasedups;ignoreboth"
+shopt -s histappend
+#PROMPT_COMMAND="history -a;history -n;$PROMPT_COMMAND"
+HISTSIZE=1000 #命令文件最大行数
+HISTFILESIZE=5000 #最大命令历史记录数
+#tac ~/.bash_history |awk '!a[$0]++' |tac > /tmp/.bash_history &&  mv /tmp/.bash_history ~/.bash_history -f
+
+alias pp='cat -n /dev/shm/zklpath'
+alias sb='source ~/.bashrc'
+alias vb='vi ~/.bashrc'
+alias ht='history |tail -n 10 '
+alias s='ssh zkl@172.16.10.242 '
+alias ss='ssh cefanty@172.16.10.241 '
+alias slog='svn log |tac '
+#alias sdnw='sudo dnw '
+alias copy_to_m8="rsync -av /media/x/english/voa/ /media/Meizu\ M8/Music/voa/"
+
+alias adb_="sudo /media/cdriver/work/software/android-sdk-linux_86/platform-tools/adb kill-server && sudo /media/cdriver/work/software/android-sdk-linux_86/platform-tools/adb start-server"
+
+alias cw="cd /media/cdriver/work/kernel/"
+
+set expand-tild on
+
+#alias pwd='builtin pwd; builtin pwd >> /dev/shm/zklpath;'
+function apwd_abc()
+{
+  builtin pwd;
+  local p=$(builtin pwd);
+  grep -q "^$p$"  /dev/shm/zklpath
+  if [ $? != 0 ]; then
+    builtin pwd >> /dev/shm/zklpath;
+  fi  
+  wc -l /dev/shm/zklpath |awk '{print $1}' > /dev/shm/total_count
+}
+
+function ap()
+{
+  builtin pwd;
+  [ -d /dev/shm/zkl ] || mkdir -p /dev/shm/zkl
+  builtin pwd > /dev/shm/zkl/apwdpath;
+}
+
+function ac()
+{
+  [ -f /dev/shm/zkl/apwdpath ] && tmp_dir=$(cat /dev/shm/zkl/apwdpath) && builtin cd $tmp_dir && unset tmp_dir
+}
+
+function atar() 
+{
+#http://www.ibm.com/developerworks/cn/aix/library/au-spunixpower.html?ca=drs-#history
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2)   tar xjf $1        ;;
+      *.tar.gz)    tar xzf $1     ;;
+      *.bz2)       bunzip2 $1       ;;
+      *.rar)       rar x $1     ;;
+      *.gz)        gunzip $1     ;;
+      *.tar)       tar xf $1        ;;
+      *.tbz2)      tar xjf $1      ;;
+      *.tgz)       tar xzf $1       ;;
+      *.zip)       unzip $1     ;;
+      *.Z)         uncompress $1  ;;
+      *.7z)        7z x $1    ;;
+      *)           echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+
+function append_daily_path()
+{
+  local path_list=(
+    #'/home/zkl/svn/compiled/meizu_m9_dev'
+    #'/home/zkl/svn/compiled/v4.0-dev'
+    '/media/cdriver/work/u-boot/uboot-mx'
+    '/media/cdriver/work/kernel/linux-2.6.35-lvcha/'
+    #'/home/zkl/svn/compiled/meizu_m9_master/linux-2.6.29-meizu'
+    #'/home/zkl/svn/compiled/uboot-1.3.4-m9'
+  );
+  [ -f /dev/shm/zklpath ] || touch /dev/shm/zklpath
+  for p in ${path_list[@]}; do
+    grep -q "^$p$"  /dev/shm/zklpath
+    if [ $? != 0 ]; then
+      echo "$p" >> /dev/shm/zklpath;
+    fi
+  done
+  wc -l /dev/shm/zklpath |awk '{print $1}' > /dev/shm/total_count
+}
+append_daily_path
+unset append_daily_path
+unset MAILCHECK
+
+#alias apwd='builtin pwd >> /dev/shm/zklpath'
+#alias mcd='pu; zklpath=$(tail -n 1 /dev/shm/zklpath); cd $zklpath'
+function _mcd_complete() {
+     COMPREPLY=()
+     local cur=${COMP_WORDS[COMP_CWORD]};
+     local com=${COMP_WORDS[COMP_CWORD-1]};
+     case $com in
+     'mcd')
+         local my_complete_word=($(cat /dev/shm/zklpath))
+         COMPREPLY=($(compgen -W '${my_complete_word[@]}' -- $cur))
+         ;;
+     'c')
+         local my_complete_word=($(cat /dev/shm/zklpath))
+         COMPREPLY=($(compgen -W '${my_complete_word[@]}' -- $cur))
+         ;;
+     *)
+         ;;
+     esac
+     return 0
+}
+alias mcd='cd '
+#alias c='cd '
+complete -F  _mcd_complete mcd
+#complete -F  _mcd_complete c
+function _dnw_complete() {
+     COMPREPLY=()
+     local cur=${COMP_WORDS[COMP_CWORD]};
+     local com=${COMP_WORDS[COMP_CWORD-1]};
+     case $com in
+     'dnw')
+         local my_complete_word=("/media/x/compiled/uboot-1.3.4-m9/u-boot-fuse.bin"
+                           "/media/x/compiled/uboot-1.3.4-m9_v4/u-boot-fuse.bin"
+                           "/media/x/compiled/meizu_m9_master/linux-2.6.29-meizu/arch/arm/boot/zImage"
+                           "/media/x/compiled/clean_ver/kernel/meizu_m9_master/linux-2.6.29-meizu/arch/arm/boot/zImage"
+                           "/media/x/compiled/meizu_m9_dev/arch/arm/boot/zImage" 
+                          )
+         COMPREPLY=($(compgen -W '${my_complete_word[@]}' -- $cur))
+         ;;
+     'sdnw')
+         local my_complete_word=(
+                           #"/media/x/compiled/uboot-1.3.4-m9/u-boot-fuse.bin" 
+                           "11111/media/x/compiled/uboot-1.3.4-m9_v4/u-boot-dev.signed"
+                           "11111/media/x/compiled/clean_ver/v4.0/arch/arm/boot/zImage"
+                           "11111arch/arm/boot/zImage"
+                           "11111/media/x/compiled/uboot-1.3.4-m9_v4/u-boot-release.signed"
+                           "11111/media/x/compiled/v4.0-dev/arch/arm/boot/zImage"
+                           #"/media/x/compiled/uboot-1.3.4-m9_v4/u-boot-fuse.bin"
+                           #"/media/x/compiled/meizu_m9_master/linux-2.6.29-meizu/arch/arm/boot/zImage"
+                           #"/media/x/compiled/clean_ver/kernel/meizu_m9_master/linux-2.6.29-meizu/arch/arm/boot/zImage"
+                           #"/media/x/compiled/meizu_m9_dev/arch/arm/boot/zImage" 
+                          )
+         COMPREPLY=($(compgen -W '${my_complete_word[@]}' -- $cur))
+         ;;
+     *)
+         ;;
+     esac
+     return 0
+}
+complete -F  _dnw_complete dnw
+
+function sdnw() {
+  if [ $# -ge 1 ];then
+    local filename=$(echo ${1/11111/})
+    #sudo dnw $1
+    sudo dnw $filename
+  fi
+  return 0
+}
+
+function _sdnw_complete() {
+     local cur=${COMP_WORDS[COMP_CWORD]};
+     local com=${COMP_WORDS[COMP_CWORD-1]};
+     local j k
+     if [[ $COMP_CWORD==1 && -z "$cur" ]];then 
+       local my_complete_word=(
+           "11111arch/arm/boot/zImage"
+           "11111/media/x/compiled/uboot-1.3.4-m9_v4/u-boot-dev.signed"
+           "11111/media/x/compiled/clean_ver/v4.0/arch/arm/boot/zImage"
+           "11111/media/x/compiled/uboot-1.3.4-m9_v4/u-boot-release.signed"
+           "11111/media/x/compiled/v4.0-dev/arch/arm/boot/zImage"
+       )
+       COMPREPLY=($(compgen -W '${my_complete_word[@]}' -- $cur))
+       local dir_list=$(compgen -d)
+       k="${#COMPREPLY[@]}"
+       for j in $dir_list;do
+         COMPREPLY[k++]=$j
+       done
+     else   #dir complete
+       local k
+       COMPREPLY=()
+       local dir_list=$(compgen -d -- $cur)
+       k="${#COMPREPLY[@]}"
+       for j in $dir_list;do
+         COMPREPLY[k++]=$j
+       done
+       local dir_list=$(compgen -f -- $cur)
+       k="${#COMPREPLY[@]}"
+       for j in $dir_list;do
+         COMPREPLY[k++]=$j
+       done
+     fi
+     return 0
+}
+complete -F  _sdnw_complete sdnw
+
+function _fastboot_completion()
+{  
+  local cur  
+  COMPREPLY=()  
+  cur=${COMP_WORDS[COMP_CWORD]} 
+  prev=${COMP_WORDS[COMP_CWORD-1]}
+  if [ $COMP_CWORD -eq 1 ];then
+    COMPREPLY=($( compgen -W 'flash' -- $cur ))  
+    else if [ $COMP_CWORD -eq 2 ];then
+      COMPREPLY=($( compgen -W 'kernel bootloader ramdisk system userdata' -- $cur ))  
+      else if [ $COMP_CWORD -eq 3 ];then
+          case "$prev" in
+            "system")
+            COMPREPLY=($( compgen -W 'system.img' -- $cur ))  
+            ;;
+            "userdata")
+            COMPREPLY=($( compgen -W 'userdata.img' -- $cur ))  
+            ;;
+            "ramdisk")
+            COMPREPLY=($( compgen -W 'ramdisk-uboot.img' -- $cur ))  
+            ;;
+            "bootloader")
+            COMPREPLY=($( compgen -W 'uboot_fuse.bin' -- $cur ))  
+            ;;
+            "kernel")
+            COMPREPLY=($( compgen -W 'arch/arm/boot/zImage zImage' -- $cur ))  
+            ;;
+            *)
+            COMPREPLY=($( compgen -W 'zImage' -- $cur ))  
+            ;;
+          esac
+      fi
+    fi
+  fi
+
+  return 0  
+}
+complete -F  _fastboot_completion fastboot 
+
+function _mkmm_complete() {
+     COMPREPLY=()
+     local cur=${COMP_WORDS[COMP_CWORD]};
+     local com=${COMP_WORDS[COMP_CWORD-1]};
+     case $com in
+     'mkmm')
+         #local my_complete_word=$(ls arch/arm/configs/meizu* -l |awk '{print $8}'|sed "s#.*/##")
+         local my_complete_word=$(ls arch/arm/configs/m* -l |awk '{print $8}'|sed "s#.*/##")
+         COMPREPLY=($(compgen -W '${my_complete_word[@]}' -- $cur))
+         ;;  
+     *)  
+         ;;  
+     esac
+     return 0
+}
+complete -F  _mkmm_complete mkmm
+
+function mkmm() {
+     if [ $# -eq 0 ];then
+       make menuconfig
+     else 
+       make $1
+     fi  
+     return 0
+}
+
+function c()
+{
+  if [ ! -f /dev/shm/cur_pos ]; 
+    then echo "1" > /dev/shm/cur_pos;  
+    local  cur_pos=1;
+  else local cur_pos=$(cat /dev/shm/cur_pos);
+    local total_count=$(cat /dev/shm/total_count);
+    ((cur_pos ++));
+    if [ $cur_pos -gt $total_count ]; 
+    then cur_pos=$(expr $cur_pos - $total_count);
+    fi
+    echo $cur_pos > /dev/shm/cur_pos;  
+  fi
+  local enter_dir=$(sed -n "$cur_pos{p;q;}"  /dev/shm/zklpath)
+  builtin cd "$enter_dir"
+  ap
+}
+
+function cv()
+{
+    if [ ! -f /dev/shm/vim_cur_file_path ]; 
+        then echo "no /dev/shm/vim_cur_file_path file";  
+    else 
+        local enter_dir="$(cat /dev/shm/vim_cur_file_path)";
+        builtin cd "$enter_dir"
+    fi
+}
+
+function zklpath()
+{
+  local i=0
+  while read line
+  do
+    echo $line
+    eval "p$i=$line"
+    #echo "${m[$i]}"
+    ((i++))
+  done < /dev/shm/zklpath
+}
+
+#function _mkmm_complete() {
+     #COMPREPLY=()
+     #local cur=${COMP_WORDS[COMP_CWORD]};
+     #local com=${COMP_WORDS[COMP_CWORD-1]};
+     #case $com in
+     #'mkmm')
+         #local my_complete_word=$(ls arch/arm/configs/meizu* -l |awk '{print $8}'|sed "s#.*/##")
+         #COMPREPLY=($(compgen -W '${my_complete_word[@]}' -- $cur))
+         #;;
+     #*)
+         #;;
+     #esac
+     #return 0
+#}
+#complete -F  _mkmm_complete mkmm
+
+function mkmm() {
+     if [ $# -eq 0 ];then
+       make menuconfig
+     else 
+       make $1
+     fi
+     return 0
+}
+#fi
+
+function rm () 
+{ 
+   if [ ! -d ~/.trash ]; then
+      mkdir ~/.trash;
+   fi;
+   mv -i $* ~/.trash
+}
+[ -d ~/.trash ] || mkdir ~/.trash
+function undel { mv ~/.trash/$* . ; }
+function lrm { ls ~/.trash/ ; }
+function cleantrash { /bin/rm -rf ~/.trash; mkdir ~/.trash; sync; } 
+
+function swap()
+{
+  mv $1 tmp.$$
+  mv $2 $1
+  mv tmp.$$ $2
+}
+
+function atar() 
+{
+#http://www.ibm.com/developerworks/cn/aix/library/au-spunixpower.html?ca=drs-#history
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2)   tar xjf $1        ;;
+      *.tar.gz)    tar xzf $1     ;;
+      *.bz2)       bunzip2 $1       ;;
+      *.rar)       rar x $1     ;;  
+      *.gz)        gunzip $1     ;;  
+      *.tar)       tar xf $1        ;;  
+      *.tbz2)      tar xjf $1      ;;  
+      *.tgz)       tar xzf $1       ;;  
+      *.zip)       unzip $1     ;;  
+      *.Z)         uncompress $1  ;;  
+      *.7z)        7z x $1    ;;  
+      *)           echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi  
+}
+
+function mkdircd () 
+{ 
+  mkdir -p "$@" && eval cd "\"\$$#\""; 
+}
+
+function ha()
+{
+    local ignore_cmd_list=(c h history ha hd he ls la)
+    n=0
+    history 10 |sort -r > /dev/shm/hist10.txt
+    while read line;
+    do  
+        local cmd_line=$(echo "$line" |sed -e "s/[0-9]*  \(.*\)/\1/")
+        local is_ignore_cmd=0
+        for cmd in ${ignore_cmd_list[@]};
+        do
+            if [ x"$cmd_line" == x"$cmd" ]; then
+                is_ignore_cmd=1
+            fi
+        done
+        if [ $is_ignore_cmd == 0 ];then
+            echo "$cmd_line" > /dev/shm/hist_cmd.txt 
+            echo "$cmd_line" 
+            return 0
+        fi
+    done  < /dev/shm/hist10.txt
+}
+
+
+function hd()
+{
+    cat  /dev/shm/hist_cmd.txt 
+}
+
+function he()
+{
+    local cmd_line=$(tail -1 /dev/shm/hist_cmd.txt|tr -d "\r"|tr -d "\n")
+    echo "$cmd_line"
+    history -s "$cmd_line"
+    #type tar
+    #echo $PATH
+    #source "$cmd_line"
+    #echo -n "$cmd_line" |hexdump -C
+    #ls $cmd_line
+    #local my_cmd="/bin/""$cmd_line"
+    #$my_cmd
+    #ls "$cmd_line"
+    #bash "$cmd_line"
+    #ls 
+    #tar tf /tmp/m9.tar
+    #eval "$cmd_line"
+    #exec "$cmd_line"
+    eval "$cmd_line"
+    #source /dev/shm/hist_cmd.txt
+}
+
+function _gittar ()
+{
+# http://blog.csdn.net/free2o/archive/2009/03/11/3981786.aspx
+    local name=$(pwd)
+    name=${name##*/}
+
+    if [ ! "$1" ]; then
+        echo "[ERROR] what branch to export?"
+        return 1
+    fi
+
+    local date=$(TZ=UTC date '+%Y%m%d.%H%M')
+    local pkg="$name-$date"
+    local dir=".."
+    local tar="$dir/$pkg.tar.gz"
+
+    git archive \
+        --format=tar \
+        --prefix="$pkg/" \
+        "$@" |
+    gzip --best > "$tar"
+
+    echo $tar
+}
+
+#add other info here just for android
+#export JAVA_HOME=/usr/lib/jvm/java-1.5.0-sun
+#export ANDROID_JAVA_HOME=$JAVA_HOME
+#export ANDROID_PRODUCT_OUT=/home/zkl/svn/app_group_android/Eclair/out/target/product/m9
+#export ANDROID_SWT=/home/zkl/svn/app_group_android/Eclair/out/host/linux-x86/framework
+export ANDROID_SWT=/media/cdriver/work/software/android-sdk-linux_86/tools/lib/x86/
+#export eclair=/home/zkl/svn/app_group_android/Eclair/
+#export PATH=~/software/bin:${PATH}:~/svn/android_eclair_smdk/out/host/linux-x86/bin/:/usr/local/arm/arm-2009q3/bin/:/usr/local/arm/4.3.1-eabi-armv6/usr/bin:~/mytools/:~/mytools/depot_tools/:/home/karlzheng/software/android-sdk-linux_86/tools:/media/cdriver/work/source/android-ndk-r5:
+#export PATH=~/software/bin:${PATH}:~/svn/android_eclair_smdk/out/host/linux-x86/bin/:/usr/local/arm/arm-2010q1/bin/:/usr/local/arm/4.3.1-eabi-armv6/usr/bin:~/mytools/:~/mytools/depot_tools/:/media/cdriver/work/software/android-sdk-linux_86/tools:/media/cdriver/work/source/android-ndk-r5:
+export PATH=~/software/bin:${PATH}:/bin/:/usr/local/arm/arm-2010q1/bin/:~/mytools/:~/mytools/depot_tools/:/media/cdriver/work/software/android-sdk-linux_86/platform-tools:/media/cdriver/work/source/android-ndk-r5:/media/cdriver/work/software/android-sdk-linux_86/tools:
+#export PATH=~/software/bin/bin:${PATH}:
+#export VIM=/usr/share/vim
+function myvimpath()
+{
+    export PATH=~/software/bin/bin:${PATH}:
+}
+
+bind -m emacs '"\en": history-search-forward'
+bind -m emacs '"\ep": history-search-backward'
+bind -m emacs '"\ew": backward-kill-word'
+bind -m emacs '"\C-o": menu-complete'
+bind -m emacs '"\C-g\C-a": "grep \"\" * --color -rHnI|grep -v ^tags|grep -v ^cscopef"'
+bind -m emacs '"\C-g\C-b": "grep \"\" * --color -rHnIC2f"'
+bind -m emacs '"\C-gc": "grep \"\" * --color -rHnIf"'
+bind -m emacs '"\C-xp": "28096403"'
+
+export EDITOR=vim
+export SVN_EDITOR=/usr/bin/vim 
+export desktop=~/桌面/
+export d=~/桌面/
+
+# for android compiling
+#export TARGET_BUILD_TYPE=debug
+#export skernel=/root/version_control/samsung/android_kernel_smdkc100_RTM20_camera_isp3/android_kernel_smdkc100_RTM20
+#export eclair=/root/source/android2.0/eclair
+#export ekernel=/root/version_control/samsung/kernel_6410_Eclair 
+export CVSROOT=:pserver:zhengkl@172.16.10.50:/M8_CVS
+
+alias rsync241="rsync cefanty@172.16.10.241:/home/cefanty/svn/kernel/linux-2.6.35-meizu/arch/arm/boot/zImage ~/img/241/zImage"
+
+export PS4='+[$LINENO]'
+
+stty -ixon
+shopt -s histreedit
+shopt -s histverify
+shopt -s lithist
+
+export o=/media/sda6/home/karlzheng/
+export dl=~/下载/
+
